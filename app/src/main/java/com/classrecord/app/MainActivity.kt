@@ -114,8 +114,8 @@ private fun ClassRecordRoot() {
     val scope = rememberCoroutineScope()
     var showPrivacyNotice by remember { mutableStateOf(false) }
 
-    LaunchedEffect(homeState.loaded, homeState.needsOnboarding) {
-        if (homeState.loaded && !homeState.needsOnboarding) {
+    LaunchedEffect(homeState.loaded) {
+        if (homeState.loaded) {
             val seen = app.container.userPrefs.privacyNoticeSeen.first()
             if (!seen) {
                 showPrivacyNotice = true
