@@ -1,6 +1,5 @@
 package com.classrecord.app
 
-import android.content.res.Configuration
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
@@ -16,13 +15,9 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.matcher.ViewMatchers.isRoot
-import com.classrecord.app.data.demo.DemoDataSeeder
 import com.classrecord.app.data.entity.ActivityType
-import com.classrecord.app.data.prefs.ThemeMode
 import com.classrecord.app.di.AppContainer
 import com.classrecord.app.di.AppViewModelFactory
-import com.classrecord.app.i18n.AppLanguage
-import com.classrecord.app.i18n.LocaleApplier
 import com.classrecord.app.ui.activities.ActivityDetailScreen
 import com.classrecord.app.ui.home.HomeScreen
 import com.classrecord.app.ui.home.HomeViewModel
@@ -31,8 +26,6 @@ import com.classrecord.app.ui.members.MembersScreen
 import com.classrecord.app.ui.theme.ClassRecordTheme
 import com.github.takahirom.roborazzi.captureRoboImage
 import java.io.File
-import java.time.Instant
-import java.util.Locale
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,7 +33,6 @@ import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
-import org.robolectric.shadows.ShadowLegacySystemClock
 
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -74,9 +66,14 @@ class HomepageScreenshotTest {
     }
 
     private fun captureVariant(variant: Variant) {
+        ScreenshotTestSupport.prepareLocale(
+            english = variant.english,
+            dark = variant.dark,
+            roboQualifiers = ScreenshotTestSupport.HOME_QUALIFIERS,
+        )
         val app = org.robolectric.RuntimeEnvironment.getApplication() as ScreenshotTestApp
+        ScreenshotTestSupport.seedDemo(app.container, english = variant.english, dark = variant.dark)
         val container = app.container
-        prepareVariant(container, variant)
         val ids = runBlocking {
             container.database.activityDao().getAll().associate { it.type to it.id }
         }
@@ -109,12 +106,12 @@ class HomepageScreenshotTest {
         content: @Composable () -> Unit,
     ) {
         viewModelStoreOwner.viewModelStore.clear()
-        val activity = Robolectric.buildActivity(ComponentActivity::class.java)
+        val controller = Robolectric.buildActivity(ComponentActivity::class.java)
             .create()
             .start()
             .resume()
             .visible()
-            .get()
+        val activity = controller.get()
         activity.setContent {
             CompositionLocalProvider(
                 LocalLifecycleOwner provides lifecycleOwner,
@@ -127,6 +124,7 @@ class HomepageScreenshotTest {
             }
         }
         onView(isRoot()).captureRoboImage(screenshotFile(lang, themeFolder, fileStem))
+        controller.pause().stop().destroy()
     }
 
     @Composable
@@ -147,52 +145,6 @@ class HomepageScreenshotTest {
     private data class Variant(val lang: String, val english: Boolean, val dark: Boolean)
 
     companion object {
-        private val FIXED_MILLIS: Long =
-            Instant.parse("2026-09-28T04:00:00Z").toEpochMilli()
-
-        private fun prepareVariant(container: AppContainer, variant: Variant) {
-            setRobolectricTime(FIXED_MILLIS)
-            val localeTag = if (variant.english) "en-US" else "zh-CN"
-            val roboLocale = if (variant.english) "en-rUS" else "zh-rCN"
-            org.robolectric.RuntimeEnvironment.setQualifiers(
-                "$roboLocale-w360dp-h781dp-port-xxhdpi",
-            )
-            val context = org.robolectric.RuntimeEnvironment.getApplication()
-            val config = Configuration(context.resources.configuration)
-            config.setLocale(Locale.forLanguageTag(localeTag))
-            config.uiMode = (config.uiMode and Configuration.UI_MODE_NIGHT_MASK.inv()) or
-                if (variant.dark) Configuration.UI_MODE_NIGHT_YES else Configuration.UI_MODE_NIGHT_NO
-            context.resources.updateConfiguration(config, context.resources.displayMetrics)
-            LocaleApplier.apply(
-                context,
-                if (variant.english) AppLanguage.EN else AppLanguage.ZH,
-                allowClearToSystem = true,
-            )
-            runBlocking {
-                container.database.clearAllTables()
-                DemoDataSeeder(
-                    container.database,
-                    container.classRepository,
-                    container.memberRepository,
-                    container.subGroupRepository,
-                    container.activityRepository,
-                    container.ledgerRepository,
-                ).seedIfEmpty(english = variant.english)
-                container.userPrefs.setThemeMode(
-                    if (variant.dark) ThemeMode.DARK else ThemeMode.LIGHT,
-                )
-            }
-        }
-
-        private fun setRobolectricTime(millis: Long) {
-            val method = ShadowLegacySystemClock::class.java.getDeclaredMethod(
-                "setCurrentTimeMillis",
-                Long::class.javaPrimitiveType,
-            )
-            method.isAccessible = true
-            method.invoke(null, millis)
-        }
-
         private fun screenshotFile(lang: String, themeFolder: String, fileStem: String): File {
             val cwd = File(System.getProperty("user.dir"))
             val appModule = if (cwd.name == "app") cwd else File(cwd, "app")

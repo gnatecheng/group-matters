@@ -23,11 +23,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.classrecord.app.R
 import com.classrecord.app.i18n.AppLanguage
 import com.classrecord.app.i18n.LocaleApplier
-import java.nio.charset.StandardCharsets
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,10 +41,6 @@ fun PrivacyPolicyScreen(onBack: () -> Unit) {
             AppLanguage.SYSTEM ->
                 context.resources.configuration.locales[0].language.startsWith("en")
         }
-    }
-    val body = remember(english) {
-        val resId = if (english) R.raw.privacy_policy_en else R.raw.privacy_policy_zh
-        context.resources.openRawResource(resId).bufferedReader(StandardCharsets.UTF_8).readText()
     }
     val webUrl = stringResource(
         if (english) R.string.privacy_policy_web_url_en else R.string.privacy_policy_web_url_zh,
@@ -70,9 +66,18 @@ fun PrivacyPolicyScreen(onBack: () -> Unit) {
                 .padding(horizontal = 16.dp, vertical = 12.dp),
         ) {
             Text(
-                text = body,
-                style = MaterialTheme.typography.bodyMedium,
+                text = if (english) "Group Matters (团团记)" else "团团记（Group Matters）",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
             )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = stringResource(R.string.privacy_policy_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+            )
+            Spacer(Modifier.height(16.dp))
+            PrivacyPolicyBody(english = english)
             Spacer(Modifier.height(16.dp))
             TextButton(onClick = { uriHandler.openUri(webUrl) }) {
                 Text(stringResource(R.string.privacy_policy_open_web))

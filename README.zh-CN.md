@@ -38,7 +38,7 @@
 
 ### 1.5.3
 
-- **targetSdk / compileSdk 36**（满足 Google Play 要求）
+- **targetSdk / compileSdk 36**（满足 Google Play 要求）；**AGP 8.9.2**
 - 应用内 **隐私政策**（设置入口）与首次进入主界面的一次性说明（非同意门）
 - **可复现构建时间**（`SOURCE_DATE_EPOCH` 或 git 提交时间）
 - **Fastlane** 商店元数据（`fastlane/metadata/android/`）；CI 在 GitHub Release APK 之外另产签名 **AAB** 工件

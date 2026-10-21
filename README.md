@@ -39,7 +39,7 @@ Android app for tracking group activities—attendance, payments, expense splits
 
 ### 1.5.3
 
-- **targetSdk / compileSdk 36** (Google Play requirement)
+- **targetSdk / compileSdk 36** (Google Play requirement); **AGP 8.9.2**
 - In-app **privacy policy** (Settings) and one-time first-launch notice (not a consent gate)
 - Reproducible **build timestamp** (`SOURCE_DATE_EPOCH` or git commit time)
 - **Fastlane** store metadata under `fastlane/metadata/android/`; CI builds signed **AAB** artifact alongside GitHub Release APK

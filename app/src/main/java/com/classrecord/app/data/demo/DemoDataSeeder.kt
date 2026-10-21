@@ -31,8 +31,19 @@ class DemoDataSeeder(
         return true
     }
 
+    /** Clears all app tables and inserts demo data (Roborazzi / screenshot tests only). */
+    suspend fun forceSeed(english: Boolean) {
+        db.clearAllTables()
+        seedPack(english)
+    }
+
     suspend fun seedIfEmpty(english: Boolean): Boolean {
         if (!canSeed()) return false
+        seedPack(english)
+        return true
+    }
+
+    private suspend fun seedPack(english: Boolean) {
         val pack = if (english) DemoContent.english else DemoContent.chinese
         db.withTransaction {
             classRepository.saveName(pack.className)
@@ -90,6 +101,5 @@ class DemoDataSeeder(
                 note = null,
             )
         }
-        return true
     }
 }

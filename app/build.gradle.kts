@@ -156,7 +156,7 @@ tasks.register<Exec>("exportHomepageScreenshots") {
 
 tasks.register<Exec>("exportFastlaneScreenshots") {
     group = "verification"
-    description = "Export padded PNG phone screenshots for fastlane metadata"
+    description = "Export PNG phone screenshots for fastlane metadata (FastlaneScreenshotTest)"
     dependsOn("recordRoborazziDebug")
     commandLine("python3", "${rootProject.projectDir}/scripts/export-fastlane-screenshots.py")
 }
