@@ -9,7 +9,7 @@ Android app for tracking group activities—attendance, payments, expense splits
 - **App name:** 团团记 (English UI: **Group Matters**)
 - **applicationId:** `com.classrecord.app`
 - **Minimum OS:** Android 8.0 (API 26)
-- **Version:** 1.5.2 (versionCode 9)
+- **Version:** 1.5.3 (versionCode 10)
 - **UI languages:** Simplified Chinese / English (switch in Settings)
 
 ## Features
@@ -36,6 +36,14 @@ Android app for tracking group activities—attendance, payments, expense splits
 - **Settings → About:** version, build time, GitHub repository link
 
 ## Changelog
+
+### 1.5.3
+
+- **targetSdk / compileSdk 36** (Google Play requirement)
+- In-app **privacy policy** (Settings) and one-time first-launch notice (not a consent gate)
+- Reproducible **build timestamp** (`SOURCE_DATE_EPOCH` or git commit time)
+- **Fastlane** store metadata under `fastlane/metadata/android/`; CI builds signed **AAB** artifact alongside GitHub Release APK
+- `dependenciesInfo` disabled in APK/AAB (no dependency info block)
 
 ### 1.5.2
 

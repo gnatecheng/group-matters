@@ -48,12 +48,20 @@ class UserPrefs(context: Context) {
         AppLanguage.fromStorage(prefs[KEY_APP_LANGUAGE])
     }
 
+    val privacyNoticeSeen: Flow<Boolean> = dataStore.data.map { prefs ->
+        prefs[KEY_PRIVACY_NOTICE_SEEN] ?: false
+    }
+
     suspend fun setSortByStudentNo(value: Boolean) {
         dataStore.edit { it[KEY_SORT_STUDENT_NO] = value }
     }
 
     suspend fun setThemeMode(mode: ThemeMode) {
         dataStore.edit { it[KEY_THEME_MODE] = mode.name }
+    }
+
+    suspend fun setPrivacyNoticeSeen(seen: Boolean = true) {
+        dataStore.edit { it[KEY_PRIVACY_NOTICE_SEEN] = seen }
     }
 
     suspend fun setAppLanguage(language: AppLanguage) {
@@ -179,5 +187,6 @@ class UserPrefs(context: Context) {
         private val KEY_APP_LANGUAGE = stringPreferencesKey("app_language")
         private val KEY_APP_LOCALE_MIGRATED = booleanPreferencesKey("app_locale_migrated_v151")
         private val KEY_PENDING_LOCALE_APPLY = stringPreferencesKey("pending_locale_apply_v151")
+        private val KEY_PRIVACY_NOTICE_SEEN = booleanPreferencesKey("privacy_notice_seen_v153")
     }
 }

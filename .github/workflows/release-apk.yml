@@ -56,7 +56,7 @@ jobs:
           SDKM="$(ls -d "${ANDROID_HOME}"/cmdline-tools/*/bin/sdkmanager | sort -V | tail -n 1)"
           echo "sdkmanager=${SDKM}"
           yes | "${SDKM}" --licenses >/dev/null || true
-          "${SDKM}" "platforms;android-35" "build-tools;35.0.0"
+          "${SDKM}" "platforms;android-36" "build-tools;35.0.0"
 
       - name: Install release keystore
         env:
@@ -65,36 +65,57 @@ jobs:
           echo "$KEYSTORE_B64" | base64 -d > "${{ github.workspace }}/release.keystore"
           echo "ANDROID_KEYSTORE_FILE=${{ github.workspace }}/release.keystore" >> "$GITHUB_ENV"
 
-      - name: Read versionName
+      - name: Read versionName and versionCode
         id: version
         run: |
           VERSION_NAME=$(grep -m1 'versionName = "' app/build.gradle.kts | sed 's/.*versionName = "\([^"]*\)".*/\1/')
+          VERSION_CODE=$(grep -m1 'versionCode = ' app/build.gradle.kts | sed 's/.*versionCode = //')
           echo "name=${VERSION_NAME}" >> "$GITHUB_OUTPUT"
-          echo "versionName=${VERSION_NAME}"
+          echo "code=${VERSION_CODE}" >> "$GITHUB_OUTPUT"
+          echo "versionName=${VERSION_NAME} versionCode=${VERSION_CODE}"
 
-      - name: Build signed release APK
+      - name: Require non-empty Fastlane release notes
+        if: github.event_name == 'push'
+        run: |
+          VERSION_CODE="${{ steps.version.outputs.code }}"
+          CHANGELOG="fastlane/metadata/android/en-US/changelogs/${VERSION_CODE}.txt"
+          if [ ! -s "$CHANGELOG" ]; then
+            echo "::error::Missing or empty release notes: $CHANGELOG"
+            exit 1
+          fi
+          echo "Release notes OK ($CHANGELOG)"
+
+      - name: Build signed release APK and AAB
         env:
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           chmod +x ./gradlew
-          ./gradlew :app:assembleRelease --no-daemon
+          export SOURCE_DATE_EPOCH="$(git log -1 --format=%ct)"
+          ./gradlew :app:assembleRelease :app:bundleRelease --no-daemon
 
-      - name: Prepare release asset
+      - name: Prepare release assets
         run: |
           VERSION_NAME="${{ steps.version.outputs.name }}"
           APK_NAME="group-matters-${VERSION_NAME}.apk"
+          AAB_NAME="group-matters-${VERSION_NAME}.aab"
           cp app/build/outputs/apk/release/app-release.apk "${APK_NAME}"
+          cp app/build/outputs/bundle/release/app-release.aab "${AAB_NAME}"
           echo "APK_NAME=${APK_NAME}" >> "$GITHUB_ENV"
-          ls -la "${APK_NAME}"
+          echo "AAB_NAME=${AAB_NAME}" >> "$GITHUB_ENV"
+          ls -la "${APK_NAME}" "${AAB_NAME}"
 
       - name: Write release notes
         run: |
+          VERSION_CODE="${{ steps.version.outputs.code }}"
+          CHANGELOG="fastlane/metadata/android/en-US/changelogs/${VERSION_CODE}.txt"
           {
             echo "## 团团记 / Group Matters ${{ steps.version.outputs.name }}"
             echo
-            echo "Signed release APK (\`assembleRelease\`), applicationId \`com.classrecord.app\`."
+            cat "$CHANGELOG"
+            echo
+            echo "Signed release APK (\`assembleRelease\`) and matching AAB (\`bundleRelease\`), applicationId \`com.classrecord.app\`. Same release keystore as GitHub APK so updates are compatible across install channels."
             echo
             echo "Tag: ${GITHUB_REF_NAME}"
           } > release_body.md
@@ -108,7 +129,14 @@ jobs:
           files: ${{ env.APK_NAME }}
           fail_on_unmatched_files: true
 
+      - name: Upload signed AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: group-matters-release-aab
+          path: ${{ env.AAB_NAME }}
+          if-no-files-found: error
+
       - name: Manual run note
         if: github.event_name == 'workflow_dispatch'
         run: |
-          echo "workflow_dispatch only verifies a signed release build; it does not create a GitHub Release. Push semver tag vX.Y.Z (matching versionName) to publish."
+          echo "workflow_dispatch verifies signed APK/AAB builds and uploads the AAB as a workflow artifact. Push semver tag vX.Y.Z (matching versionName) to publish the APK on GitHub Releases."

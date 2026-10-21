@@ -10,8 +10,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,7 +41,11 @@ import com.classrecord.app.ui.members.MemberEditScreen
 import com.classrecord.app.ui.members.MembersScreen
 import com.classrecord.app.ui.navigation.Routes
 import com.classrecord.app.ui.onboarding.OnboardingScreen
+import com.classrecord.app.ui.privacy.PrivacyNoticeDialog
+import com.classrecord.app.ui.privacy.PrivacyPolicyScreen
 import com.classrecord.app.ui.settings.SettingsScreen
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import com.classrecord.app.ui.subgroups.SubGroupEditScreen
 import com.classrecord.app.ui.subgroups.SubGroupsScreen
 import com.classrecord.app.ui.theme.ClassRecordTheme
@@ -102,6 +111,17 @@ private fun ClassRecordRoot() {
 
     val navController = rememberNavController()
     val start = if (homeState.needsOnboarding) Routes.ONBOARDING else Routes.HOME
+    val scope = rememberCoroutineScope()
+    var showPrivacyNotice by remember { mutableStateOf(false) }
+
+    LaunchedEffect(homeState.loaded, homeState.needsOnboarding) {
+        if (homeState.loaded && !homeState.needsOnboarding) {
+            val seen = app.container.userPrefs.privacyNoticeSeen.first()
+            if (!seen) {
+                showPrivacyNotice = true
+            }
+        }
+    }
 
     NavHost(
         navController = navController,
@@ -201,7 +221,31 @@ private fun ClassRecordRoot() {
             LedgerScreen(onBack = { navController.popBackStack() })
         }
         composable(Routes.SETTINGS) {
-            SettingsScreen(onBack = { navController.popBackStack() })
+            SettingsScreen(
+                onBack = { navController.popBackStack() },
+                onOpenPrivacy = { navController.navigate(Routes.PRIVACY) },
+            )
         }
+        composable(Routes.PRIVACY) {
+            PrivacyPolicyScreen(onBack = { navController.popBackStack() })
+        }
+    }
+
+    if (showPrivacyNotice) {
+        PrivacyNoticeDialog(
+            onDismiss = {
+                scope.launch {
+                    app.container.userPrefs.setPrivacyNoticeSeen(true)
+                    showPrivacyNotice = false
+                }
+            },
+            onReadFullPolicy = {
+                scope.launch {
+                    app.container.userPrefs.setPrivacyNoticeSeen(true)
+                    showPrivacyNotice = false
+                    navController.navigate(Routes.PRIVACY)
+                }
+            },
+        )
     }
 }

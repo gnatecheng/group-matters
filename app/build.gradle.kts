@@ -1,3 +1,4 @@
+import java.io.File
 import java.time.Instant
 
 plugins {
@@ -10,17 +11,32 @@ plugins {
 
 val roborazziVersion = "1.43.0"
 
+fun reproducibleBuildTimeIso(rootDir: File): String {
+    System.getenv("SOURCE_DATE_EPOCH")?.toLongOrNull()?.let { epoch ->
+        return Instant.ofEpochSecond(epoch).toString()
+    }
+    return runCatching {
+        val process = ProcessBuilder("git", "log", "-1", "--format=%cI")
+            .directory(rootDir)
+            .redirectErrorStream(true)
+            .start()
+        process.waitFor()
+        val out = process.inputStream.bufferedReader().readText().trim()
+        if (out.isNotEmpty()) out else Instant.EPOCH.toString()
+    }.getOrElse { Instant.EPOCH.toString() }
+}
+
 android {
     namespace = "com.classrecord.app"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.classrecord.app"
         minSdk = 26
-        targetSdk = 35
-        versionCode = 9
-        versionName = "1.5.2"
-        val buildTimeIso = Instant.now().toString()
+        targetSdk = 36
+        versionCode = 10
+        versionName = "1.5.3"
+        val buildTimeIso = reproducibleBuildTimeIso(rootProject.projectDir)
         buildConfigField("String", "BUILD_TIME_ISO", "\"$buildTimeIso\"")
     }
 
@@ -74,6 +90,11 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
     }
 
     packaging {
@@ -131,4 +152,18 @@ tasks.register<Exec>("exportHomepageScreenshots") {
     description = "Convert Roborazzi PNG captures to WebP under docs/screenshots/homepage/"
     dependsOn("recordRoborazziDebug")
     commandLine("python3", "${rootProject.projectDir}/scripts/export-homepage-screenshots.py")
+}
+
+tasks.register<Exec>("exportFastlaneScreenshots") {
+    group = "verification"
+    description = "Export padded PNG phone screenshots for fastlane metadata"
+    dependsOn("recordRoborazziDebug")
+    commandLine("python3", "${rootProject.projectDir}/scripts/export-fastlane-screenshots.py")
+}
+
+tasks.register<Exec>("exportDistributionScreenshots") {
+    group = "verification"
+    description = "Copy distribution UI captures to docs/screenshots/distribution/"
+    dependsOn("testDebugUnitTest")
+    commandLine("python3", "${rootProject.projectDir}/scripts/export-distribution-screenshots.py")
 }

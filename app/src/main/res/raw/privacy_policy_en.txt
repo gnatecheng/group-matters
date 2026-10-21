@@ -1,0 +1,63 @@
+Group Matters (团团记) Privacy Policy
+
+Effective date: 2026-10-13
+Publisher: Ch Etang (Etai Apps)
+Full policy (all Etai apps): https://etais.dev/en/privacy/
+
+In one sentence
+
+Group Matters is offline, account-free, and server-free. By default we do not collect or upload personal information. Data stays on your device; files leave the phone only when you export, share, or back up yourself.
+
+What this app processes
+
+1. In-app data (on-device only)
+
+· Group name and member roster (optional member ID, notes, archive state)
+· Sub-groups and membership
+· Attendance, payments, expense splits, and checklists, including roster snapshots
+· Group fund ledger entries and balance
+· Notes and payment proof images you optionally attach
+· UI preferences such as language, theme, and roster sort order
+
+This data is stored in a local Room database and app-private storage. It is not synced to a cloud service we operate (we do not run one).
+
+2. Content you export or share
+
+When you back up, restore, export CSV, copy reminder text, or share files, the app may create zip, CSV, text, or image files. Those files appear only where you choose to save or send them. We do not upload them for you.
+
+3. What we do not collect
+
+· No sign-up or sign-in
+· No identity data such as name, phone number, email, or ID numbers for our services
+· No ad SDKs, analytics SDKs, or crash-reporting SDKs
+· This app does not declare the INTERNET permission; normal use does not require a network, and we have no backend that receives your app data
+
+Permissions (see the system install prompt and the merged manifest for your build)
+
+· The main manifest does not request INTERNET or other network access.
+· AndroidX libraries may declare internal permissions such as DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION for component safety; they are not used to upload your data.
+· If you take a photo for a payment proof, the system may enable the camera for that action. If you pick from the gallery, the system picker provides the image; we do not scan your gallery in the background.
+· Backup, export, and share use the system document picker or share sheet at your initiative.
+
+Children
+
+We do not direct this app at children or collect children’s data for our services. Because data stays on-device with no accounts, a parent or guardian can manage or uninstall the app on the device.
+
+Security and device changes
+
+· On-device security depends mainly on your lock screen and system settings
+· Uninstalling usually deletes app data; back up before reinstalling or switching phones
+· Release builds signed with a different key may not overwrite older installs; uninstalling to fix a signature conflict deletes local data unless you backed up first
+
+Third parties and open source
+
+· Download stores (GitHub Releases, Coolapk, Google Play, etc.) have their own policies separate from in-app data handling
+· Open-source libraries such as AndroidX are used under their licenses; we do not use them to add tracking services
+
+Changes
+
+If this policy changes in a material way, we will update the effective date and note it in release notes or on the website where practical. The app remains offline-first with on-device data by default.
+
+Contact
+
+For privacy questions, contact the publisher via https://etais.dev/ or Issues on the group-matters GitHub repository.
