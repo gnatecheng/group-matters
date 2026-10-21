@@ -123,6 +123,7 @@ private fun ClassRecordRoot() {
         }
     }
 
+    Box(Modifier.fillMaxSize()) {
     NavHost(
         navController = navController,
         startDestination = start,
@@ -247,5 +248,6 @@ private fun ClassRecordRoot() {
                 }
             },
         )
+    }
     }
 }

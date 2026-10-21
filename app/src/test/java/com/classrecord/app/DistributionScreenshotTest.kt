@@ -80,7 +80,7 @@ class DistributionScreenshotTest {
         val app = org.robolectric.RuntimeEnvironment.getApplication() as ScreenshotTestApp
         ScreenshotTestSupport.seedDemo(app.container, english, dark)
         val container = app.container
-        captureComposable(fileName, dark, screenCapture = true) {
+        captureComposable(fileName, dark, screenCapture = false) {
             Box(Modifier.fillMaxSize()) {
                 HomeContent(container)
                 PrivacyNoticeDialog(onDismiss = {}, onReadFullPolicy = {})
