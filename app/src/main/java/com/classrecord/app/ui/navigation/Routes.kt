@@ -12,6 +12,7 @@ object Routes {
     const val DETAIL = "detail/{activityId}"
     const val LEDGER = "ledger"
     const val SETTINGS = "settings"
+    const val PRIVACY = "privacy"
 
     fun memberEdit(memberId: Long? = null): String =
         "member_edit?memberId=${memberId ?: -1L}"

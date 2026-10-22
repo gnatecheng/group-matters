@@ -1,0 +1,1 @@
+Google Play and store readiness: target API 36, in-app privacy policy and first-launch notice, reproducible build timestamps, Fastlane metadata, signed release AAB in CI. Patch fixes and distribution prep only; no change to app name or package id.

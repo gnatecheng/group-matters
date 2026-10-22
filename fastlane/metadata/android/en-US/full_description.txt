@@ -1,0 +1,19 @@
+Group Matters (Chinese name: 团团记) helps whoever organizes a small group keep track of who has done what, without spreadsheets and without a server.
+
+• One group with editable members (optional member ID and notes, soft archive, bulk paste import)
+• Sub-groups: a member can belong to several. Each item can target the whole group or a sub-group
+• Four item types: attendance, payment, expense split and checklist
+• Each item snapshots the member list when it is created, so later roster changes do not rewrite history. "Run again" re-snapshots the current roster
+• Amounts are stored in cents. Splits can exclude members, use weights or fixed amounts, and the remainder goes to the first N members
+• Item details show unfinished members by default. Tap to update. Continuous roll-call mode for attendance
+• Copy or share a summary or a reminder message (one person per line, with amounts), formatted for group chats
+• Group fund ledger: income/expense entries and balance. Collected payments can be posted to the group fund
+• Optional notes and image receipts on payments and splits
+• Backup/restore as a zip (including receipt images). CSV export of members, item progress and ledger
+• Home-screen widget showing the number of unfinished members for active items
+• Quick title templates (roll call, group fund, venue split), search and archive
+• Simplified Chinese and English UI, Material 3 with light/dark/system theme
+
+Privacy: no account, no ads, no analytics, no INTERNET permission. Data stays on the device (Room database) unless you export or share it yourself.
+
+Open source (MIT). Source and release notes: github.com/gnatecheng/group-matters

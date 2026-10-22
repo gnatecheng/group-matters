@@ -177,7 +177,10 @@ class SettingsViewModel(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(onBack: () -> Unit) {
+fun SettingsScreen(
+    onBack: () -> Unit,
+    onOpenPrivacy: () -> Unit = {},
+) {
     val context = LocalContext.current
     val app = context.applicationContext as ClassRecordApp
     val vm: SettingsViewModel = viewModel(factory = AppViewModelFactory(app.container))
@@ -457,6 +460,11 @@ fun SettingsScreen(onBack: () -> Unit) {
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary
             )
+            Spacer(Modifier.height(8.dp))
+            OutlinedButton(
+                onClick = onOpenPrivacy,
+                modifier = Modifier.fillMaxWidth(),
+            ) { Text(stringResource(R.string.settings_privacy_policy)) }
             Spacer(Modifier.height(8.dp))
             Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
                 Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {

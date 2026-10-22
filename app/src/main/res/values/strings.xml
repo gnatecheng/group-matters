@@ -59,8 +59,17 @@
     <string name="settings_about_title">关于</string>
     <string name="settings_about_version">版本</string>
     <string name="settings_about_updated">最后更新</string>
+    <string name="settings_privacy_policy">隐私政策</string>
     <string name="settings_about_github">GitHub 仓库</string>
     <string name="settings_about_open_github">在浏览器中打开</string>
+    <string name="privacy_policy_title">隐私政策</string>
+    <string name="privacy_policy_open_web">在浏览器中打开完整政策（Etai 应用集）</string>
+    <string name="privacy_policy_web_url_zh">https://etais.dev/privacy/</string>
+    <string name="privacy_policy_web_url_en">https://etais.dev/en/privacy/</string>
+    <string name="privacy_notice_title">隐私说明</string>
+    <string name="privacy_notice_body">本应用不收集个人信息，数据只保存在你的手机。只有你主动备份、导出或分享时，相关文件才会离开本机。</string>
+    <string name="privacy_notice_got_it">我知道了</string>
+    <string name="privacy_notice_read_full">查看全文</string>
     <string name="msg_backup_saved">已保存备份</string>
     <string name="msg_backup_failed">备份失败</string>
     <string name="msg_csv_exported">已导出 CSV</string>

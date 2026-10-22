@@ -9,7 +9,7 @@
 - **应用名称**：团团记（英文界面：**Group Matters**）
 - **applicationId**：`com.classrecord.app`
 - **最低系统**：Android 8.0（API 26）
-- **版本**：1.5.2（versionCode 9）
+- **版本**：1.5.3（versionCode 10）
 - **界面语言**：简体中文 / English（设置内可切换）
 
 ## 功能
@@ -35,6 +35,14 @@
 - **设置 → 关于**：版本号、构建时间、GitHub 仓库链接
 
 ## 更新日志
+
+### 1.5.3
+
+- **targetSdk / compileSdk 36**（满足 Google Play 要求）；**AGP 8.9.2**
+- 应用内 **隐私政策**（设置入口）与首次进入主界面的一次性说明（非同意门）
+- **可复现构建时间**（`SOURCE_DATE_EPOCH` 或 git 提交时间）
+- **Fastlane** 商店元数据（`fastlane/metadata/android/`）；CI 在 GitHub Release APK 之外另产签名 **AAB** 工件
+- 关闭 APK/AAB 中的 `dependenciesInfo` 依赖信息块
 
 ### 1.5.2
 
