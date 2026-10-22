@@ -129,6 +129,44 @@ jobs:
           files: ${{ env.APK_NAME }}
           fail_on_unmatched_files: true
 
+      - name: Upload signed APK to Cloudflare R2
+        if: github.event_name == 'push'
+        env:
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          AWS_DEFAULT_REGION: auto
+        run: |
+          if [ -z "$R2_ACCESS_KEY_ID" ] || [ -z "$R2_SECRET_ACCESS_KEY" ] || [ -z "$R2_ACCOUNT_ID" ]; then
+            echo "R2 upload skipped: configure repository secrets R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, and R2_ACCOUNT_ID to publish the release APK to bucket etai-apk."
+            exit 0
+          fi
+          aws s3 cp "${APK_NAME}" "s3://etai-apk/${APK_NAME}" \
+            --endpoint-url "https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com" \
+            --content-type application/vnd.android.package-archive
+          echo "Uploaded s3://etai-apk/${APK_NAME}"
+
+      - name: Verify CDN APK matches local release
+        if: github.event_name == 'push'
+        env:
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+        run: |
+          if [ -z "$R2_ACCESS_KEY_ID" ] || [ -z "$R2_SECRET_ACCESS_KEY" ] || [ -z "$R2_ACCOUNT_ID" ]; then
+            echo "CDN checksum verification skipped (R2 secrets not configured)."
+            exit 0
+          fi
+          LOCAL=$(sha256sum "${APK_NAME}" | awk '{print $1}')
+          REMOTE=$(curl -fsSL "https://dl.etais.dev/${APK_NAME}" | sha256sum | awk '{print $1}')
+          if [ "$LOCAL" != "$REMOTE" ]; then
+            echo "::error::CDN APK checksum mismatch for ${APK_NAME}"
+            echo "local=${LOCAL}"
+            echo "cdn=${REMOTE}"
+            exit 1
+          fi
+          echo "CDN checksum OK: ${LOCAL}"
+
       - name: Upload signed AAB artifact
         uses: actions/upload-artifact@v4
         with:
