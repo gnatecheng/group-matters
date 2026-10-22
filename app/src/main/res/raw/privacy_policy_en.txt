@@ -60,4 +60,4 @@ If this policy changes in a material way, we will update the effective date and 
 
 Contact
 
-For privacy questions, contact the publisher via https://etais.dev/ or Issues on the group-matters GitHub repository.
+For privacy questions, contact the publisher at hi@etais.dev, https://etais.dev/, or via Issues on the group-matters GitHub repository.

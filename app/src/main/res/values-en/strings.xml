@@ -60,6 +60,8 @@
     <string name="settings_about_version">Version</string>
     <string name="settings_about_updated">Last updated</string>
     <string name="settings_privacy_policy">Privacy policy</string>
+    <string name="settings_about_contact">Contact email</string>
+    <string name="settings_about_contact_email">hi@etais.dev</string>
     <string name="settings_about_github">GitHub repository</string>
     <string name="settings_about_open_github">Open in browser</string>
     <string name="privacy_policy_title">Privacy policy</string>

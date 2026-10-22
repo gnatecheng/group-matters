@@ -16,4 +16,6 @@ Group Matters (Chinese name: 团团记) helps whoever organizes a small group ke
 
 Privacy: no account, no ads, no analytics, no INTERNET permission. Data stays on the device (Room database) unless you export or share it yourself.
 
+Contact: hi@etais.dev (privacy and feedback; GitHub Issues also welcome).
+
 Open source (MIT). Source and release notes: github.com/gnatecheng/group-matters

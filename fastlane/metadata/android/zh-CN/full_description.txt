@@ -22,4 +22,6 @@
 · 设置内可查看隐私政策；首次进入主界面会提示数据只存本机
 · 简体中文 / English 界面，浅色、深色或跟随系统
 
+联系：hi@etais.dev（隐私与反馈；亦可在 GitHub Issues 留言）
+
 开源（MIT 许可证），源码与更新：github.com/gnatecheng/group-matters
