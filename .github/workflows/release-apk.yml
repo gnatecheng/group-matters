@@ -115,7 +115,7 @@ jobs:
             echo
             cat "$CHANGELOG"
             echo
-            echo "Signed release APK (\`assembleRelease\`) and matching AAB (\`bundleRelease\`), applicationId \`com.classrecord.app\`. Same release keystore as GitHub APK so updates are compatible across install channels."
+            echo "**GitHub Release assets:** signed APK (\`assembleRelease\`, sideload) and signed AAB (\`bundleRelease\`, Google Play), applicationId \`com.classrecord.app\`. Same release keystore for both so updates are compatible across install channels."
             echo
             echo "Tag: ${GITHUB_REF_NAME}"
           } > release_body.md
@@ -126,7 +126,9 @@ jobs:
         with:
           name: 团团记 / Group Matters ${{ steps.version.outputs.name }}
           body_path: release_body.md
-          files: ${{ env.APK_NAME }}
+          files: |
+            ${{ env.APK_NAME }}
+            ${{ env.AAB_NAME }}
           fail_on_unmatched_files: true
 
       - name: Upload signed APK to Cloudflare R2
@@ -177,4 +179,4 @@ jobs:
       - name: Manual run note
         if: github.event_name == 'workflow_dispatch'
         run: |
-          echo "workflow_dispatch verifies signed APK/AAB builds and uploads the AAB as a workflow artifact. Push semver tag vX.Y.Z (matching versionName) to publish the APK on GitHub Releases."
+          echo "workflow_dispatch verifies signed APK/AAB builds and uploads the AAB as a workflow artifact. Push semver tag vX.Y.Z (matching versionName) to publish signed APK and AAB on GitHub Releases."

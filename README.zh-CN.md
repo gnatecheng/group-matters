@@ -41,7 +41,7 @@
 - **targetSdk / compileSdk 36**（满足 Google Play 要求）；**AGP 8.9.2**
 - 应用内 **隐私政策**（设置入口）与首次进入主界面的一次性说明（非同意门）
 - **可复现构建时间**（`SOURCE_DATE_EPOCH` 或 git 提交时间）
-- **Fastlane** 商店元数据（`fastlane/metadata/android/`）；CI 在 GitHub Release APK 之外另产签名 **AAB** 工件
+- **Fastlane** 商店元数据（`fastlane/metadata/android/`）；CI 在 GitHub Release 发布签名 **APK**（侧载）与 **AAB**（Play），并另保留 AAB 工作流 **artifact**
 - 关闭 APK/AAB 中的 `dependenciesInfo` 依赖信息块
 
 ### 1.5.2
@@ -97,9 +97,10 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 
 ## GitHub 发布
 
-推送 **semver 标签** `vX.Y.Z`，且须与 `app/build.gradle.kts` 中的 `versionName` **完全一致**（例如 `versionName = "1.5.1"` 时标签为 `v1.5.1`）。**Release APK** 工作流会构建 **已签名、不可调试** 的 release 包并发布附件：
+推送 **semver 标签** `vX.Y.Z`，且须与 `app/build.gradle.kts` 中的 `versionName` **完全一致**（例如 `versionName = "1.5.1"` 时标签为 `v1.5.1`）。**Release APK** 工作流会构建 **已签名、不可调试** 的 release 包并挂到 GitHub Release：
 
-`group-matters-<versionName>.apk`（例如 `group-matters-1.5.1.apk`）。
+- `group-matters-<versionName>.apk`（例如 `group-matters-1.5.1.apk`）— 侧载
+- `group-matters-<versionName>.aab`（例如 `group-matters-1.5.1.aab`）— Google Play
 
 下载入口：[Releases](https://github.com/gnatecheng/group-matters/releases/latest)。
 

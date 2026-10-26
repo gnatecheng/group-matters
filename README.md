@@ -42,7 +42,7 @@ Android app for tracking group activities—attendance, payments, expense splits
 - **targetSdk / compileSdk 36** (Google Play requirement); **AGP 8.9.2**
 - In-app **privacy policy** (Settings) and one-time first-launch notice (not a consent gate)
 - Reproducible **build timestamp** (`SOURCE_DATE_EPOCH` or git commit time)
-- **Fastlane** store metadata under `fastlane/metadata/android/`; CI builds signed **AAB** artifact alongside GitHub Release APK
+- **Fastlane** store metadata under `fastlane/metadata/android/`; CI publishes signed **APK** (sideload) and **AAB** (Play) on GitHub Releases, plus a workflow **artifact** copy of the AAB
 - `dependenciesInfo` disabled in APK/AAB (no dependency info block)
 
 ### 1.5.2
@@ -98,9 +98,10 @@ Or transfer the APK to the phone and open it. The home screen widget appears as 
 
 ## GitHub releases
 
-Push a **semver tag** `vX.Y.Z` that **exactly matches** `versionName` in `app/build.gradle.kts` (e.g. tag `v1.5.1` when `versionName = "1.5.1"`). The **Release APK** workflow builds a **signed, non-debuggable** release APK and publishes:
+Push a **semver tag** `vX.Y.Z` that **exactly matches** `versionName` in `app/build.gradle.kts` (e.g. tag `v1.5.1` when `versionName = "1.5.1"`). The **Release APK** workflow builds **signed, non-debuggable** release binaries and attaches to the GitHub Release:
 
-`group-matters-<versionName>.apk` (e.g. `group-matters-1.5.1.apk`).
+- `group-matters-<versionName>.apk` (e.g. `group-matters-1.5.1.apk`) — sideload
+- `group-matters-<versionName>.aab` (e.g. `group-matters-1.5.1.aab`) — Google Play
 
 Downloads: [Releases](https://github.com/gnatecheng/group-matters/releases/latest).
 
