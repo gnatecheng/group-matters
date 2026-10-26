@@ -4,10 +4,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.delay
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
@@ -91,7 +94,15 @@ class DistributionScreenshotTest {
     private fun capturePrivacyPolicy(english: Boolean, dark: Boolean, fileName: String) {
         prepare(english, dark)
         captureComposable(fileName, dark, screenCapture = false) {
-            PrivacyPolicyScreen(onBack = {})
+            val scrollState = rememberScrollState()
+            LaunchedEffect(Unit) {
+                while (scrollState.maxValue == 0) {
+                    delay(16)
+                }
+                scrollState.scrollTo(scrollState.maxValue)
+                delay(100)
+            }
+            PrivacyPolicyScreen(onBack = {}, scrollState = scrollState)
         }
     }
 
@@ -129,6 +140,9 @@ class DistributionScreenshotTest {
             }
         }
         ShadowLooper.idleMainLooper()
+        repeat(30) {
+            ShadowLooper.idleMainLooper()
+        }
         val file = distributionFile(fileName)
         if (screenCapture) {
             captureScreenRoboImage(file)

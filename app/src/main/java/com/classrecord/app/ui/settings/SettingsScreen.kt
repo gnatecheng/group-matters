@@ -480,6 +480,12 @@ fun SettingsScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(Modifier.height(8.dp))
+                    Text(stringResource(R.string.settings_about_contact), style = MaterialTheme.typography.titleSmall)
+                    Text(
+                        stringResource(R.string.settings_about_contact_email),
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    Spacer(Modifier.height(8.dp))
                     Text(stringResource(R.string.settings_about_github), style = MaterialTheme.typography.titleSmall)
                     TextButton(onClick = { uriHandler.openUri(githubUrl) }) {
                         Text(stringResource(R.string.settings_about_open_github))

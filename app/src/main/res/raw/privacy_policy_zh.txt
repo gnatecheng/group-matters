@@ -60,4 +60,4 @@
 
 联系方式
 
-隐私相关问题请通过 https://etais.dev/ 或 GitHub 仓库 gnatecheng/group-matters 的 Issues 联系发布者。
+隐私相关问题请通过 hi@etais.dev、https://etais.dev/ 或 GitHub 仓库 gnatecheng/group-matters 的 Issues 联系发布者。

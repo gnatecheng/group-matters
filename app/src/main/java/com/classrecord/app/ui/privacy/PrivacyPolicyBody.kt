@@ -114,7 +114,7 @@ private fun chineseSections(): List<PrivacySection> = listOf(
     PrivacySection(
         title = "联系方式",
         paragraphs = listOf(
-            "隐私相关问题请通过 https://etais.dev/ 或 GitHub 仓库 gnatecheng/group-matters 的 Issues 联系发布者。",
+            "隐私相关问题请通过 hi@etais.dev、https://etais.dev/ 或 GitHub 仓库 gnatecheng/group-matters 的 Issues 联系发布者。",
             "生效日期：2026-10-13 · 发布者：Ch Etang（Etai 应用集）",
         ),
     ),
@@ -183,7 +183,7 @@ private fun englishSections(): List<PrivacySection> = listOf(
     PrivacySection(
         title = "Contact",
         paragraphs = listOf(
-            "For privacy questions, contact the publisher via https://etais.dev/ or Issues on the group-matters GitHub repository.",
+            "For privacy questions, contact the publisher at hi@etais.dev, https://etais.dev/, or via Issues on the group-matters GitHub repository.",
             "Effective date: 2026-10-13 · Publisher: Ch Etang (Etai Apps)",
         ),
     ),

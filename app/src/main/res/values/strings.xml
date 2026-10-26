@@ -60,6 +60,8 @@
     <string name="settings_about_version">版本</string>
     <string name="settings_about_updated">最后更新</string>
     <string name="settings_privacy_policy">隐私政策</string>
+    <string name="settings_about_contact">联系邮箱</string>
+    <string name="settings_about_contact_email">hi@etais.dev</string>
     <string name="settings_about_github">GitHub 仓库</string>
     <string name="settings_about_open_github">在浏览器中打开</string>
     <string name="privacy_policy_title">隐私政策</string>
