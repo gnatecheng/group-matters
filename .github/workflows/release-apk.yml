@@ -146,6 +146,52 @@ jobs:
             --content-type application/vnd.android.package-archive
           echo "Uploaded s3://etai-apk/${APK_NAME}"
 
+      - name: Upload version manifest to Cloudflare R2
+        if: github.event_name == 'push'
+        env:
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          AWS_DEFAULT_REGION: auto
+        run: |
+          if [ -z "$R2_ACCESS_KEY_ID" ] || [ -z "$R2_SECRET_ACCESS_KEY" ] || [ -z "$R2_ACCOUNT_ID" ]; then
+            echo "Version manifest upload skipped (R2 secrets not configured)."
+            exit 0
+          fi
+          VERSION_NAME="${{ steps.version.outputs.name }}"
+          VERSION_CODE="${{ steps.version.outputs.code }}"
+          MANIFEST="group-matters-version.json"
+          CHANGELOG_EN="fastlane/metadata/android/en-US/changelogs/${VERSION_CODE}.txt"
+          CHANGELOG_ZH="fastlane/metadata/android/zh-CN/changelogs/${VERSION_CODE}.txt"
+          NOTES_EN=""
+          NOTES_ZH=""
+          if [ -s "$CHANGELOG_EN" ]; then
+            NOTES_EN=$(cat "$CHANGELOG_EN")
+          fi
+          if [ -s "$CHANGELOG_ZH" ]; then
+            NOTES_ZH=$(cat "$CHANGELOG_ZH")
+          fi
+          jq -n \
+            --argjson versionCode "$VERSION_CODE" \
+            --arg versionName "$VERSION_NAME" \
+            --arg apkUrl "https://dl.etais.dev/group-matters-${VERSION_NAME}.apk" \
+            --arg notesEn "$NOTES_EN" \
+            --arg notesZh "$NOTES_ZH" \
+            '{
+              versionCode: $versionCode,
+              versionName: $versionName,
+              apkUrl: $apkUrl,
+              releaseNotes: (if ($notesEn | length) > 0 or ($notesZh | length) > 0 then {en: $notesEn, zh: $notesZh} else null end)
+            }' > "$MANIFEST"
+          if [ ! -s "$MANIFEST" ]; then
+            echo "Version manifest missing or empty; skipping upload."
+            exit 0
+          fi
+          aws s3 cp "$MANIFEST" "s3://etai-apk/${MANIFEST}" \
+            --endpoint-url "https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com" \
+            --content-type application/json
+          echo "Uploaded s3://etai-apk/${MANIFEST}"
+
       - name: Verify CDN APK matches local release
         if: github.event_name == 'push'
         env:

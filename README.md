@@ -33,7 +33,7 @@ Android app for tracking group activities—attendance, payments, expense splits
 - Reminder text formatted for WeChat-style group messages (one line per person with amounts); copy/share unfinished lists and CSV from detail
 - Bulk import: member ID first, tab-separated paste; hints for duplicate names/IDs; restore archived members while keeping history
 - Quick title templates for roll call, group fund, shared expense split, etc. when creating activities or opening a new period
-- **Settings → About:** version, build time, GitHub repository link
+- **Settings → About:** version, build time, GitHub repository link; **Check for updates** (manual only—no check on launch)
 
 ## Changelog
 
@@ -103,6 +103,8 @@ Push a **semver tag** `vX.Y.Z` that **exactly matches** `versionName` in `app/bu
 `group-matters-<versionName>.apk` (e.g. `group-matters-1.5.1.apk`).
 
 Downloads: [Releases](https://github.com/gnatecheng/group-matters/releases/latest).
+
+When R2 secrets are configured, the same workflow also publishes `group-matters-<versionName>.apk` to [dl.etais.dev](https://dl.etais.dev/) and uploads **`group-matters-version.json`** (version code/name, APK URL, optional zh/en release notes from Fastlane changelogs). Sideloaded builds use that JSON when you tap **Settings → Check for updates**; Play installs use the **Google Play In-App Updates** API instead.
 
 Manual **workflow_dispatch** only verifies the signed release build; it does **not** create a Release. Missing signing secrets fail the job (no debug APK is ever published).
 

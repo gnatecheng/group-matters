@@ -136,6 +136,9 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.appcompat)
 
+    implementation(libs.play.app.update)
+    implementation(libs.play.app.update.ktx)
+
     testImplementation(libs.junit)
     testImplementation("org.robolectric:robolectric:4.14.1")
     testImplementation("androidx.test:core:1.6.1")
