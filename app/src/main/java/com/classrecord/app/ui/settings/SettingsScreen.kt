@@ -1,9 +1,11 @@
 package com.classrecord.app.ui.settings
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -14,12 +16,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -72,6 +76,11 @@ import com.classrecord.app.data.repo.LedgerRepository
 import com.classrecord.app.data.repo.MemberRepository
 import com.classrecord.app.di.AppViewModelFactory
 import com.classrecord.app.ui.theme.appColors
+import com.classrecord.app.update.AppUpdateChecker
+import com.classrecord.app.update.PlayUpdateLauncher
+import com.classrecord.app.update.RemoteVersionInfo
+import com.classrecord.app.update.UpdateCheckResult
+import com.google.android.play.core.appupdate.AppUpdateInfo
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.io.File
@@ -83,7 +92,8 @@ class SettingsViewModel(
     private val activityRepository: ActivityRepository,
     private val ledgerRepository: LedgerRepository,
     private val userPrefs: UserPrefs,
-    private val appStrings: AppStrings
+    private val appStrings: AppStrings,
+    private val appUpdateChecker: AppUpdateChecker,
 ) : ViewModel() {
     val sortByStudentNo = userPrefs.sortByStudentNo
     val themeMode = userPrefs.themeMode
@@ -173,6 +183,8 @@ class SettingsViewModel(
         appContext.contentResolver.openOutputStream(uri)?.use { it.write(bytes) }
             ?: error(appStrings.errWriteFile())
     }
+
+    suspend fun checkForUpdates(): UpdateCheckResult = appUpdateChecker.check()
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -180,6 +192,7 @@ class SettingsViewModel(
 fun SettingsScreen(
     onBack: () -> Unit,
     onOpenPrivacy: () -> Unit = {},
+    scrollState: ScrollState? = null,
 ) {
     val context = LocalContext.current
     val app = context.applicationContext as ClassRecordApp
@@ -192,11 +205,24 @@ fun SettingsScreen(
     val scope = rememberCoroutineScope()
     var confirmRestore by remember { mutableStateOf<Uri?>(null) }
     var pendingSave by remember { mutableStateOf<SaveKind?>(null) }
+    var checkingUpdates by remember { mutableStateOf(false) }
+    var sideloadUpdate by remember { mutableStateOf<RemoteVersionInfo?>(null) }
+    var playUpdateInfo by remember { mutableStateOf<AppUpdateInfo?>(null) }
+    val playUpdateLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartIntentSenderForResult(),
+    ) { result ->
+        if (result.resultCode != Activity.RESULT_OK) {
+            scope.launch {
+                snackbar.showSnackbar(context.getString(R.string.update_play_cancelled))
+            }
+        }
+    }
     val backupFileName = stringResource(R.string.settings_backup_file)
     val csvMembersName = stringResource(R.string.csv_members)
     val csvActivitiesName = stringResource(R.string.csv_activities)
     val csvLedgerName = stringResource(R.string.csv_ledger)
     val githubUrl = stringResource(R.string.about_github_url)
+    val settingsScrollState = scrollState ?: rememberScrollState()
 
     val backupSaver = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/zip")
@@ -253,7 +279,7 @@ fun SettingsScreen(
             Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(settingsScrollState)
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
             Text(
@@ -466,6 +492,53 @@ fun SettingsScreen(
                 modifier = Modifier.fillMaxWidth(),
             ) { Text(stringResource(R.string.settings_privacy_policy)) }
             Spacer(Modifier.height(8.dp))
+            OutlinedButton(
+                onClick = {
+                    if (checkingUpdates) return@OutlinedButton
+                    scope.launch {
+                        checkingUpdates = true
+                        try {
+                            when (val result = vm.checkForUpdates()) {
+                                UpdateCheckResult.UpToDate ->
+                                    snackbar.showSnackbar(context.getString(R.string.update_up_to_date))
+                                UpdateCheckResult.NetworkError ->
+                                    snackbar.showSnackbar(context.getString(R.string.update_network_error))
+                                UpdateCheckResult.PlayCheckFailed ->
+                                    snackbar.showSnackbar(context.getString(R.string.update_play_check_failed))
+                                is UpdateCheckResult.SideloadUpdateAvailable ->
+                                    sideloadUpdate = result.info
+                                is UpdateCheckResult.PlayUpdateAvailable ->
+                                    playUpdateInfo = result.appUpdateInfo
+                            }
+                        } finally {
+                            checkingUpdates = false
+                        }
+                    }
+                },
+                enabled = !checkingUpdates,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    if (checkingUpdates) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.height(18.dp),
+                            strokeWidth = 2.dp,
+                        )
+                        Spacer(Modifier.padding(horizontal = 4.dp))
+                    }
+                    Text(
+                        if (checkingUpdates) {
+                            stringResource(R.string.update_checking)
+                        } else {
+                            stringResource(R.string.settings_check_updates)
+                        },
+                    )
+                }
+            }
+            Spacer(Modifier.height(8.dp))
             Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
                 Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
                     Text(
@@ -494,6 +567,88 @@ fun SettingsScreen(
             }
             Spacer(Modifier.height(24.dp))
         }
+    }
+
+    val pendingPlay = playUpdateInfo
+    if (pendingPlay != null) {
+        AlertDialog(
+            onDismissRequest = { playUpdateInfo = null },
+            title = { Text(stringResource(R.string.update_available_title)) },
+            text = { Text(stringResource(R.string.update_play_prompt)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val info = pendingPlay
+                        playUpdateInfo = null
+                        val activity = context as? ComponentActivity
+                        if (activity == null) {
+                            scope.launch {
+                                snackbar.showSnackbar(context.getString(R.string.update_play_unavailable))
+                            }
+                        } else {
+                            val started = PlayUpdateLauncher.start(
+                                activity = activity,
+                                launcher = playUpdateLauncher,
+                                appUpdateInfo = info,
+                            )
+                            if (!started) {
+                                scope.launch {
+                                    snackbar.showSnackbar(context.getString(R.string.update_play_unavailable))
+                                }
+                            }
+                        }
+                    },
+                ) { Text(stringResource(R.string.update_install)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { playUpdateInfo = null }) {
+                    Text(stringResource(R.string.action_cancel))
+                }
+            },
+        )
+    }
+
+    val pendingSideload = sideloadUpdate
+    if (pendingSideload != null) {
+        val notes = sideloadReleaseNotes(context, pendingSideload)
+        AlertDialog(
+            onDismissRequest = { sideloadUpdate = null },
+            title = { Text(stringResource(R.string.update_available_title)) },
+            text = {
+                Column {
+                    Text(
+                        stringResource(
+                            R.string.update_available_body,
+                            pendingSideload.versionName,
+                            pendingSideload.versionCode,
+                        ),
+                    )
+                    if (notes != null) {
+                        Spacer(Modifier.height(8.dp))
+                        Text(notes, style = MaterialTheme.typography.bodySmall)
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val url = pendingSideload.effectiveApkUrl()
+                        sideloadUpdate = null
+                        runCatching { uriHandler.openUri(url) }
+                            .onFailure {
+                                scope.launch {
+                                    snackbar.showSnackbar(context.getString(R.string.update_network_error))
+                                }
+                            }
+                    },
+                ) { Text(stringResource(R.string.update_download)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { sideloadUpdate = null }) {
+                    Text(stringResource(R.string.action_cancel))
+                }
+            },
+        )
     }
 
     val pending = confirmRestore
@@ -527,6 +682,15 @@ fun SettingsScreen(
 }
 
 private enum class SaveKind { MEMBERS, LEDGER, ACTIVITIES }
+
+private fun sideloadReleaseNotes(context: Context, info: RemoteVersionInfo): String? {
+    val locale = context.resources.configuration.locales[0]
+    return if (locale.language.startsWith("en")) {
+        info.releaseNotesEn ?: info.releaseNotesZh
+    } else {
+        info.releaseNotesZh ?: info.releaseNotesEn
+    }
+}
 
 fun shareFile(context: Context, file: File, mime: String, title: String) {
     val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)

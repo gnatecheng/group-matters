@@ -136,6 +136,9 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.appcompat)
 
+    implementation(libs.play.app.update)
+    implementation(libs.play.app.update.ktx)
+
     testImplementation(libs.junit)
     testImplementation("org.robolectric:robolectric:4.14.1")
     testImplementation("androidx.test:core:1.6.1")
@@ -165,6 +168,6 @@ tasks.register<Exec>("exportFastlaneScreenshots") {
 tasks.register<Exec>("exportDistributionScreenshots") {
     group = "verification"
     description = "Copy distribution UI captures to docs/screenshots/distribution/"
-    dependsOn("testDebugUnitTest")
+    dependsOn("recordRoborazziDebug")
     commandLine("python3", "${rootProject.projectDir}/scripts/export-distribution-screenshots.py")
 }

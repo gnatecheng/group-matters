@@ -73,7 +73,15 @@ class DistributionScreenshotTest {
         val app = org.robolectric.RuntimeEnvironment.getApplication() as ScreenshotTestApp
         ScreenshotTestSupport.seedDemo(app.container, english, dark)
         captureComposable(fileName, dark, screenCapture = false) {
-            SettingsScreen(onBack = {}, onOpenPrivacy = {})
+            val scrollState = rememberScrollState()
+            LaunchedEffect(Unit) {
+                while (scrollState.maxValue == 0) {
+                    delay(16)
+                }
+                scrollState.scrollTo(scrollState.maxValue)
+                delay(100)
+            }
+            SettingsScreen(onBack = {}, onOpenPrivacy = {}, scrollState = scrollState)
         }
     }
 

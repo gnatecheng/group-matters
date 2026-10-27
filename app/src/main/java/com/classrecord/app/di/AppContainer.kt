@@ -25,6 +25,7 @@ import com.classrecord.app.ui.onboarding.OnboardingViewModel
 import com.classrecord.app.ui.settings.SettingsViewModel
 import com.classrecord.app.ui.subgroups.SubGroupEditViewModel
 import com.classrecord.app.ui.subgroups.SubGroupsViewModel
+import com.classrecord.app.update.AppUpdateChecker
 
 class AppContainer(
     context: Context,
@@ -41,6 +42,7 @@ class AppContainer(
     val activityRepository = ActivityRepository(database, appStrings)
     val ledgerRepository = LedgerRepository(database, appStrings)
     val backupRepository = BackupRepository(appContext, database, attachmentStore, appStrings)
+    val appUpdateChecker = AppUpdateChecker(appContext)
     val demoDataSeeder = DemoDataSeeder(
         database,
         classRepository,
@@ -117,7 +119,8 @@ class AppViewModelFactory(
                     container.activityRepository,
                     container.ledgerRepository,
                     container.userPrefs,
-                    container.appStrings
+                    container.appStrings,
+                    container.appUpdateChecker,
                 )
             else -> throw IllegalArgumentException("Unknown ViewModel ${modelClass.name}")
         }

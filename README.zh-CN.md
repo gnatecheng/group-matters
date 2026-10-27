@@ -32,7 +32,7 @@
 - 催缴文案按微信群可读格式（一人一行、含金额）；详情可复制/分享未完成名单与 CSV
 - 批量导入支持编号在前、Tab 粘贴，重名/同编号会提示；可恢复已归档成员且保留历史事务
 - 新建事务与再开一期提供点名/团费/场地分摊等快捷标题模板
-- **设置 → 关于**：版本号、构建时间、GitHub 仓库链接
+- **设置 → 关于**：版本号、构建时间、GitHub 仓库链接；**检查更新**（仅手动，启动时不自动检查）
 
 ## 更新日志
 
@@ -103,6 +103,8 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 - `group-matters-<versionName>.aab`（例如 `group-matters-1.5.1.aab`）— Google Play
 
 下载入口：[Releases](https://github.com/gnatecheng/group-matters/releases/latest)。
+
+配置 R2 Secrets 后，同一工作流还会把 `group-matters-<versionName>.apk` 发布到 [dl.etais.dev](https://dl.etais.dev/)，并上传 **`group-matters-version.json`**（含 versionCode/versionName、APK 链接，以及来自 Fastlane changelog 的可选中/英更新说明）。侧载安装的用户可在 **设置 → 检查更新** 时读取该 JSON；通过 Google Play 安装的应用则走 **Play 应用内更新** API。
 
 手动 **workflow_dispatch** 仅用于验证签名 release 构建，**不会**创建 GitHub Release。缺少签名 Secrets 时工作流会 **明确失败**，不会发布 debug 包。
 
