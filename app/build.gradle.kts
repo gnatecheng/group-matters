@@ -168,6 +168,6 @@ tasks.register<Exec>("exportFastlaneScreenshots") {
 tasks.register<Exec>("exportDistributionScreenshots") {
     group = "verification"
     description = "Copy distribution UI captures to docs/screenshots/distribution/"
-    dependsOn("testDebugUnitTest")
+    dependsOn("recordRoborazziDebug")
     commandLine("python3", "${rootProject.projectDir}/scripts/export-distribution-screenshots.py")
 }

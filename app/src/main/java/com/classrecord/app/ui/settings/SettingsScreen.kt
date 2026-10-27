@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -191,6 +192,7 @@ class SettingsViewModel(
 fun SettingsScreen(
     onBack: () -> Unit,
     onOpenPrivacy: () -> Unit = {},
+    scrollState: ScrollState? = null,
 ) {
     val context = LocalContext.current
     val app = context.applicationContext as ClassRecordApp
@@ -220,6 +222,7 @@ fun SettingsScreen(
     val csvActivitiesName = stringResource(R.string.csv_activities)
     val csvLedgerName = stringResource(R.string.csv_ledger)
     val githubUrl = stringResource(R.string.about_github_url)
+    val settingsScrollState = scrollState ?: rememberScrollState()
 
     val backupSaver = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/zip")
@@ -276,7 +279,7 @@ fun SettingsScreen(
             Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(settingsScrollState)
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
             Text(
